@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Code CLI - De Zero a Hero 🚀</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            color: white;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .level-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .level-btn.basic {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+            color: #2d3748;
+        }
+
+        .level-btn.intermediate {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%);
+            color: #2d3748;
+        }
+
+        .level-btn.advanced {
+            background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 100%);
+            color: #2d3748;
+        }
+
+        .level-btn.active {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(0,0,0,0.4);
+        }
+
+        .level-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+
+        .content-section {
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .command-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .command-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
+        }
+
+        .command-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .command-title {
+            font-size: 1.5em;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .difficulty-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: bold;
+        }
+
+        .badge-essential { background: #48bb78; color: white; }
+        .badge-useful { background: #ed8936; color: white; }
+        .badge-power { background: #e53e3e; color: white; }
+
+        .command-code {
+            background: #2d3748;
+            color: #68d391;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .command-code:hover .copy-btn {
+            opacity: 1;
+        }
+
+        .copy-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4a5568;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.85em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #667eea;
+        }
+
+        .description {
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .use-case {
+            background: #f7fafc;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .use-case-title {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .pro-tip {
+            background: #fef5e7;
+            border-left: 4px solid #f39c12;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 5px;
+        }
+
+        .pro-tip-icon {
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .filter-bar {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .stats-bar {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #718096;
+            font-size: 0.9em;
+        }
+
+        .emoji {
+            font-size: 1.3em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Claude Code CLI</h1>
+            <p class="subtitle">De Zero a Hero - Guía Interactiva para Ingenieros</p>
+        </header>
+
+        <div class="stats-bar">
+            <div class="stat-card">
+                <div class="stat-number">35+</div>
+                <div class="stat-label">Comandos Esenciales</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">3</div>
+                <div class="stat-label">Niveles de Dominio</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">∞</div>
+                <div class="stat-label">Posibilidades</div>
+            </div>
+        </div>
+
+        <div class="filter-bar">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 Buscar comando o caso de uso...">
+        </div>
+
+        <div class="level-selector">
+            <button class="level-btn basic active" data-level="basic">
+                🌱 Básico
+            </button>
+            <button class="level-btn intermediate" data-level="intermediate">
+                ⚡ Intermedio
+            </button>
+            <button class="level-btn advanced" data-level="advanced">
+                🔥 Avanzado
+            </button>
+        </div>
+
+        <!-- BÁSICO -->
+        <div id="basic" class="content-section active">
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎯</span> claude</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    Inicia el modo interactivo REPL. Tu compañero de código en la terminal.
+                </div>
+                <div class="command-code">
+                    claude
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Estás en tu proyecto y necesitas ayuda. Solo escribe <code>claude</code> y comienza a conversar sobre tu código.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">💬</span> claude "query"</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    Inicia REPL con un prompt inicial. Perfecto para ir directo al grano.
+                </div>
+                <div class="command-code">
+                    claude "explica la arquitectura de este proyecto"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Nuevo en un proyecto? Arranca con contexto: <code>claude "dame un resumen de cómo está organizado este código"</code>
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">⚡</span> claude -p "query"</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    Modo "print": consulta rápida via SDK y sale. Ideal para scripts.
+                </div>
+                <div class="command-code">
+                    claude -p "revisa este archivo en busca de bugs"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    En CI/CD: <code>claude -p "analiza test coverage del último commit"</code> → sale inmediatamente con el resultado
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">💎 PRO TIP:</span> Combínalo con <code>--output-format json</code> para parsear la respuesta programáticamente
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🔄</span> claude -c</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    Continúa tu conversación más reciente. No pierdas el contexto.
+                </div>
+                <div class="command-code">
+                    claude -c
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Estabas debuggeando ayer, cerraste la terminal. Hoy: <code>claude -c</code> y continúas exactamente donde lo dejaste.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">📂</span> Comandos Slash Básicos</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    Comandos que usarás dentro de una sesión de Claude
+                </div>
+                <div class="command-code">
+                    /help        # Ver todos los comandos disponibles
+/clear       # Resetear conversación (memoria limpia)
+/new         # Nueva sesión (contexto fresco)
+/exit        # Salir de Claude
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">💎 PRO TIP:</span> Usa <code>/clear</code> cuando cambies de tarea para evitar que el contexto anterior interfiera
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">📝</span> CLAUDE.md</div>
+                    <span class="difficulty-badge badge-essential">ESENCIAL</span>
+                </div>
+                <div class="description">
+                    El archivo más importante: la "memoria" de tu proyecto para Claude
+                </div>
+                <div class="command-code">
+                    # En tu directorio raíz
+echo "# Arquitectura
+- Stack: Next.js + TypeScript
+- Database: PostgreSQL
+- Testing: Jest" > CLAUDE.md
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Claude lee este archivo automáticamente. Documenta convenciones, arquitectura, comandos comunes. Es como darle un onboarding a tu par de programación.
+                </div>
+            </div>
+        </div>
+
+        <!-- INTERMEDIO -->
+        <div id="intermediate" class="content-section">
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎯</span> --model</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Elige el modelo específico para tu sesión
+                </div>
+                <div class="command-code">
+                    claude --model opus      # Opus: tareas complejas, análisis profundo
+claude --model sonnet    # Sonnet: balance perfecto
+claude --model haiku     # Haiku: respuestas rápidas
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>Refactor complejo:</strong> <code>--model opus</code><br>
+                    <strong>Bug rápido:</strong> <code>--model haiku</code><br>
+                    <strong>Feature nueva:</strong> <code>--model sonnet</code>
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🔧</span> --agents</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Crea subagentes especializados dinámicamente. Tu equipo AI personalizado.
+                </div>
+                <div class="command-code">
+                    claude --agents '{
+  "reviewer": {
+    "description": "Code reviewer experto",
+    "prompt": "Eres un senior reviewer. Enfócate en seguridad y performance",
+    "tools": ["Read", "Grep", "Bash"],
+    "model": "sonnet"
+  },
+  "debugger": {
+    "description": "Especialista en debugging",
+    "prompt": "Analiza errores, identifica causas raíz"
+  }
+}'
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Claude invocará automáticamente al subagente correcto según la tarea. ¿Error en tests? → debugger. ¿PR listo? → reviewer.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">⚙️</span> --permission-mode</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Controla cómo Claude pide permisos para ejecutar comandos
+                </div>
+                <div class="command-code">
+                    claude --permission-mode plan    # Claude hace un plan antes de actuar
+claude --permission-mode ask     # Te pregunta cada acción
+claude --permission-mode auto    # YOLO mode - ejecuta sin preguntar
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">⚠️ CUIDADO:</span> Usa <code>auto</code> solo cuando confías totalmente. Para tareas riesgosas, usa <code>plan</code> o <code>ask</code>
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">📊</span> --output-format</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Formatea la salida para procesamiento programático
+                </div>
+                <div class="command-code">
+                    claude -p "analiza coverage" --output-format json
+claude -p "revisa código" --output-format stream-json
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>En scripts de CI/CD:</strong><br>
+                    <code>result=$(claude -p "test coverage?" --output-format json)<br>
+                    coverage=$(echo $result | jq '.coverage')</code>
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🔍</span> cat file | claude -p</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Pipe contenido directo a Claude. Unix philosophy meets AI.
+                </div>
+                <div class="command-code">
+                    cat error.log | claude -p "explica este error"
+git diff | claude -p "resume estos cambios"
+npm test 2>&1 | claude -p "por qué fallan estos tests?"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Tests fallando? <code>npm test 2>&1 | claude -p "debuggea"</code> → análisis instantáneo sin copy-paste
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎨</span> --append-system-prompt</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Añade instrucciones custom manteniendo las capacidades base de Claude
+                </div>
+                <div class="command-code">
+                    claude --append-system-prompt "Siempre usa TypeScript strict mode y JSDoc comments"
+
+# O para tu equipo:
+claude --append-system-prompt "Sigue las convenciones de nuestro style guide en /docs/style.md"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">💎 PRO TIP:</span> Más seguro que <code>--system-prompt</code> porque no reemplaza todo, solo añade tus reglas
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">💾</span> --resume -r</div>
+                    <span class="difficulty-badge badge-useful">ÚTIL</span>
+                </div>
+                <div class="description">
+                    Resume una sesión específica por ID
+                </div>
+                <div class="command-code">
+                    claude --resume abc123 "continúa el refactor"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Trabajaste en un feature branch la semana pasada. Hoy vuelves: encuentra el session-id y <code>--resume</code> para retomar exactamente ahí.
+                </div>
+            </div>
+        </div>
+
+        <!-- AVANZADO -->
+        <div id="advanced" class="content-section">
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🧠</span> --json-schema</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Obtén output estructurado que cumpla un JSON Schema específico
+                </div>
+                <div class="command-code">
+                    claude -p --json-schema '{
+  "type": "object",
+  "properties": {
+    "bugs": {"type": "array"},
+    "severity": {"type": "string"},
+    "recommendations": {"type": "array"}
+  },
+  "required": ["bugs", "severity"]
+}' "analiza este PR"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>Integración con sistemas:</strong> necesitas que Claude te devuelva datos en formato específico para tu DB o API. Este flag lo garantiza.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🔌</span> MCP (Model Context Protocol)</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Conecta Claude con herramientas externas (Slack, GitHub, bases de datos, etc.)
+                </div>
+                <div class="command-code">
+                    # Configurar MCP
+claude mcp
+
+# Usar config específico
+claude --mcp-config ./mcp.json
+
+# Solo usar MCPs del config (ignorar otros)
+claude --strict-mcp-config --mcp-config ./production-mcp.json
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>Workflow completo:</strong><br>
+                    1. Claude lee un issue de GitHub (via MCP)<br>
+                    2. Escribe el fix<br>
+                    3. Crea el PR automáticamente<br>
+                    4. Notifica en Slack<br>
+                    Todo sin salir de la terminal.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎭</span> Custom Slash Commands</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Crea tus propios comandos personalizados para workflows recurrentes
+                </div>
+                <div class="command-code">
+                    # En .claude/commands/fix-issue.md
+---
+name: fix-issue
+description: Fix GitHub issue automáticamente
+---
+
+Analiza y arregla el issue de GitHub: $ARGUMENTS
+
+1. Usa `gh issue view` para obtener detalles
+2. Encuentra archivos relevantes en el codebase
+3. Implementa el fix
+4. Escribe tests
+5. Crea commit descriptivo
+6. Push y crea PR
+
+# Uso:
+# > /project:fix-issue 1234
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">💎 PRO TIP:</span> Comandos en <code>~/.claude/commands/</code> están disponibles en TODAS tus sesiones. Los de <code>.claude/commands/</code> son específicos del proyecto.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🪝</span> Hooks</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Ejecuta scripts automáticamente en diferentes puntos del ciclo de vida de Claude
+                </div>
+                <div class="command-code">
+                    # Hooks disponibles:
+- before_edit    # Antes de editar archivos (ej: formatear)
+- after_edit     # Después de editar (ej: linting, tests)
+- before_bash    # Antes de ejecutar bash
+- after_bash     # Después de ejecutar bash
+- before_read    # Antes de leer archivos
+- session_start  # Al iniciar sesión
+- session_end    # Al terminar sesión
+
+# Ejemplo: auto-format después de cada edit
+# .claude/hooks/after_edit.sh
+#!/bin/bash
+prettier --write "$CLAUDE_EDITED_FILE"
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>Quality gates automáticos:</strong><br>
+                    - <code>after_edit</code>: corre linter + formatter<br>
+                    - <code>after_bash</code>: si corrió tests, actualiza coverage badge<br>
+                    - <code>session_end</code>: auto-commit con resumen de cambios
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🚀</span> Background Sessions (Web)</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Ejecuta tareas largas en la nube mientras haces otras cosas
+                </div>
+                <div class="command-code">
+                    # En claude.ai/code, inicia múltiples tareas:
+& Refactoriza módulo de auth
+& Arregla test flakey en auth.spec.ts
+& Actualiza documentación API
+
+# Después usa /tasks para ver progreso
+# Presiona 't' para "teleportarse" a una sesión
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Viernes 4pm. Tienes 3 refactors grandes. Láncalos en background, vete a tomar café. Cuando vuelves, revisa los PRs y mergea. 🎯
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎯</span> TDD Workflow Avanzado</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Workflow test-driven completo con Claude
+                </div>
+                <div class="command-code">
+                    # Paso 1: Tests primero
+> Escribe tests para la nueva feature de autenticación JWT.
+> Sé explícito que es TDD - NO escribas implementación aún.
+
+# Paso 2: Verificar que fallen
+> Corre los tests y confirma que fallan
+
+# Paso 3: Commit tests
+> git add . && git commit -m "tests: JWT auth"
+
+# Paso 4: Implementación
+> Ahora escribe el código que pase los tests
+> NO modifiques los tests
+
+# Paso 5: Iterar hasta verde
+> Sigue hasta que todos los tests pasen
+
+# Paso 6: Validación independiente
+> Usa un subagent para verificar que no over-fitting a tests
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="pro-tip">
+                    <span class="pro-tip-icon">💎 PRO TIP:</span> Este workflow mejora significativamente la tasa de éxito en el primer intento
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">⚙️</span> settings.json Avanzado</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Configuraciones ninja para personalizar Claude Code a fondo
+                </div>
+                <div class="command-code">
+                    {
+  "HTTPS_PROXY": "http://localhost:8888",  // Debug: inspecciona tráfico
+  "MCP_TOOL_TIMEOUT": 120000,              // Comandos largos
+  "BASH_MAX_TIMEOUT_MS": 300000,           // Builds pesados
+  "permissions": {
+    "Bash(git *)": "allow",                // Auto-allow git commands
+    "Bash(npm install)": "allow",
+    "Bash(npm test)": "allow"
+  },
+  "preferredNotifChannel": "terminal_bell" // Notificaciones
+}
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    Configuración enterprise: proxy para auditoria, timeouts para monorepos gigantes, auto-allow para comandos seguros.
+                </div>
+            </div>
+
+            <div class="command-card">
+                <div class="command-header">
+                    <div class="command-title"><span class="emoji">🎬</span> GitHub Actions Integration</div>
+                    <span class="difficulty-badge badge-power">POWER USER</span>
+                </div>
+                <div class="description">
+                    Claude Code operacionalizado en CI/CD
+                </div>
+                <div class="command-code">
+                    # .github/workflows/claude-review.yml
+name: Claude Code Review
+on: [pull_request]
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npx @anthropic-ai/claude-code -p "revisa este PR" --output-format json
+      - run: |
+          # Parsea resultado
+          # Comenta en el PR
+          # Falla si crítico
+                    <button class="copy-btn" onclick="copyCode(this)">📋 Copiar</button>
+                </div>
+                <div class="use-case">
+                    <div class="use-case-title">💡 Caso de uso real:</div>
+                    <strong>Data flywheel:</strong> Claude revisa PRs → aprende de bugs → actualiza CLAUDE.md → mejora en siguiente PR. Sistema auto-mejorable.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Level switching
+        const levelBtns = document.querySelectorAll('.level-btn');
+        const sections = document.querySelectorAll('.content-section');
+
+        levelBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const level = btn.dataset.level;
+                
+                // Update buttons
+                levelBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                // Update sections
+                sections.forEach(s => s.classList.remove('active'));
+                document.getElementById(level).classList.add('active');
+            });
+        });
+
+        // Search functionality
+        const searchInput = document.getElementById('searchInput');
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const cards = document.querySelectorAll('.command-card');
+            
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(searchTerm)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+
+        // Copy functionality
+        function copyCode(button) {
+            const codeBlock = button.parentElement;
+            const code = codeBlock.textContent.replace('📋 Copiar', '').trim();
+            
+            navigator.clipboard.writeText(code).then(() => {
+                button.textContent = '✅ Copiado!';
+                setTimeout(() => {
+                    button.textContent = '📋 Copiar';
+                }, 2000);
+            });
+        }
+
+        // Add some Easter eggs for engineers
+        let konami = [];
+        const konamiCode = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        
+        document.addEventListener('keydown', (e) => {
+            konami.push(e.key);
+            konami = konami.slice(-10);
+            
+            if (konami.join(',') === konamiCode.join(',')) {
+                document.body.style.animation = 'rainbow 2s infinite';
+                setTimeout(() => {
+                    document.body.style.animation = '';
+                    alert('🎉 Easter egg encontrado! Eres un verdadero ninja de Claude Code 🥷');
+                }, 100);
+            }
+        });
+    </script>
+
+    <style>
+        @keyframes rainbow {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+    </style>
+</body>
+</html>
